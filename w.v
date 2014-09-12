@@ -3,7 +3,7 @@
 module testbench;
 	reg pclk; 
 	reg vsync;
-    reg hsync;
+    reg href;
     reg [7:0] din;
 	wire ready;
 	reg dclk; 
@@ -11,7 +11,7 @@ module testbench;
 	integer pix;
 	integer lineIdx;
 	
-	wcoder c1(pclk,vsync,hsync,din,ready,dclk,dout);
+	wcoder c1(pclk,hsync,href,din,ready,dclk,dout);
 	initial
 	begin
 		//Dump results of the simulation to ff.cvd
@@ -21,16 +21,21 @@ module testbench;
 		
 		pclk=0;
 		vsync=0;
-		hsync=0;
+		href=0;
 		din=0;
 		dclk=0;
 		
-		#1 vsync=1; #1 vsync=0;
-		for (lineIdx=0;lineIdx<7;lineIdx=lineIdx+1) 
+		vsync=1;
+		#1 pclk=1; 
+		#1 pclk=0; 
+		vsync=0;
+		
+		for (lineIdx=0;lineIdx<3;lineIdx=lineIdx+1) 
 		begin
-			#1 hsync=1; #1 hsync=0;
-			
-			for (pix=0;pix<6;pix=pix+1) 
+			href=0;
+			#1 pclk=1; #1 pclk=0; 
+			#1 href=1; #1
+			for (pix=0;pix<21;pix=pix+1) 
 			begin
 				#1 din=pix+lineIdx+1;	
 				#1 pclk=1; 
@@ -40,12 +45,8 @@ module testbench;
 					if (ready)
 						dclk=1;
 			end
+			href=0;
 		end
-		/*
-		if(dout==din) begin
-			$display("pass1");
-		end
-		*/
 		 
 		$finish;
 	end
