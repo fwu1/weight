@@ -22,6 +22,7 @@ reg [rowBlockSize-1:0] rowBlock;	// the index of block in rows
 
 reg vReady;		// mark vertical data processing is ready
 reg hReady; 	// mark horizontal data processing is ready
+reg buffReady;	// data in buffer is ready
 reg outReady;	// mark this output is ready
 
 reg [15:0] sum1;	// left sum
@@ -37,8 +38,10 @@ end
 
 always @(posedge vsync) begin
 	vReady<=1;
+	buffReady<=0;
 	outReady<=0;
-	rowIdx<=0;
+	rowIdx<=-1;
+	colIdx<=0;
 	rowBlock<=0;
 	sum1<=0;
 	sum2<=0;
@@ -51,45 +54,44 @@ always @(posedge hsync) begin
 		colBlock<=0;
 		hReady<=1;
 	end
+	
+	if (buffReady) begin
+		outBuffer[31:16]<=sum1; 
+		outBuffer[15:0]<=sum2;
+		outIdx<=0; 
+		outReady<=1;
+		sum1<=0;
+		sum2<=0;
+		rowIdx<=0;
+		rowBlock<=rowBlock+1;
+	end
+	else begin
+		rowIdx<=rowIdx+1;
+		outReady<=0;
+	end
 end
 
 always @(posedge pclk) begin
 	
 	// read the data and sum it for its block
-	if(colBlock==0)
-		sum1<=sum1+din;
-	else
-		sum2<=sum2+din;
+	if(hReady) begin
 	
-	if(colIdx==(colBlockWide-1)) begin
-		// reach the last pixel of a block
-		colIdx<=0;
 		if(colBlock==0)
-			// on the left block, move to the right block
+			sum1<=sum1+din;
+		else
+			sum2<=sum2+din;
+			
+		colIdx<=colIdx+1;
+		
+		if(colIdx==(colBlockWide-1)) 
 			colBlock<=1;
-		else 
+		if(colIdx==2*colBlockWide-1) 
 		begin
-			// on the right block
-			// increase the raw index
-			rowIdx<=rowIdx+1;
 			if(rowIdx==(rowBlockHeight-1)) begin
-				// reach the last raw of the block
-				// set data ready to output;
-				outBuffer[31:16]<=sum1; 
-				outBuffer[15:0]<=sum2;
-				outIdx<=0; 
-				outReady<=1;
-				sum1<=0;
-				sum2<=0;
-				rowIdx<=0;
-				rowBlock<=rowBlock+1;
+				buffReady<=1;
 			end
 		end
-	end
-	else
-		// increase column index
-		colIdx<=colIdx+1;
-	
+	end  // hReady
 end
 
 always @(posedge dclk) begin
@@ -98,7 +100,7 @@ always @(posedge dclk) begin
 		outBuffer[31:8]=outBuffer[23:0];		
 		outIdx<=outIdx+1;
 		if(outIdx==3)
-			outReady<=0;
+			buffReady<=0;
 	end
 end
 
