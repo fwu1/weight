@@ -3,13 +3,12 @@ module wcoder(
 	input vsync,
     input href,
     input [7:0] din,
-	output reg ready,
-	input dclk, 
-	output reg [7:0] dout
+	output ready,
+	output [7:0] dout
 );
 
 parameter colSize=8;
-parameter colBlockWide=10;
+parameter colBlockWide=200;
 parameter rowSize=4;
 parameter rowBlockSize=4;
 parameter rowBlockHeight=3;
@@ -28,19 +27,25 @@ reg [(sumSize-1):0] sum;
 reg [31:0] outBuffer;
 reg [2:0] outSize;
 reg [3:0] outTimer;
+reg [7:0] header;
+
+data8out #(20,3) c1(pclk,{header,sum},sumReady,ready,dout);
+
 initial
 begin
 	outSize=0;
 	sumReady=false;
 	colIdx=-1;
 	sum=0;
-	dout=0;
-	ready=0;
+	header=8'h55;
 end
 
 
 always @(posedge pclk) begin
 
+	if(sumReady) 
+		sumReady<=false;
+		
 	if(href==1) begin
 		// when href is high, 
 		// add the sum
@@ -62,7 +67,9 @@ always @(posedge pclk) begin
 		colIdx<=0;
 		
 	end
-
+	
+	
+/*
 	if(sumReady) begin
 		// save the sum to output buffer
 		outBuffer[31:sumSize]<='h5566; 
@@ -89,7 +96,7 @@ always @(posedge pclk) begin
 		if(outTimer==(outClock+outClock-1))
 			outTimer<=0;
 	end
-		
+*/		
 end
 
 

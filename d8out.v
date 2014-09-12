@@ -18,7 +18,7 @@ output reg [7:0] dout;
 
 reg [(8*nofBytes-9):0] outBuffer;
 reg [2:0] outSize;
-reg [3:0] waitCounter;
+reg [5:0] waitCounter;
 reg inPorcess;
 reg dataOn;
 initial

@@ -11,7 +11,7 @@ module testbench;
 	integer pix;
 	integer lineIdx;
 	
-	wcoder c1(pclk,hsync,href,din,ready,dclk,dout);
+	wcoder c1(pclk,hsync,href,din,ready,dout);
 	initial
 	begin
 		//Dump results of the simulation to ff.cvd
@@ -35,7 +35,7 @@ module testbench;
 			href=0;
 			#1 pclk=1; #1 pclk=0; 
 			#1 href=1; #1
-			for (pix=0;pix<21;pix=pix+1) 
+			for (pix=0;pix<410;pix=pix+1) 
 			begin
 				#1 din=pix+lineIdx+1;	
 				#1 pclk=1; 
