@@ -1,2 +1,2 @@
-iverilog -o w w.v
+iverilog -o w w.v wcoder.v
 vvp w
