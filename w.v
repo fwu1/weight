@@ -31,7 +31,11 @@ module testbench;
 		//Dump results of the simulation to ff.cvd
 		$dumpfile("w.vcd");
 		$dumpvars;
-		#1 din=1;	#1 pclk=1; #2 pclk=0; 
+		#1 din=1;	#1 pclk=1; #2 pclk=0;
+		if(dout==din) begin
+			$display("pass1");
+		end
+		 
 		#1 din=2;	#1 pclk=1; #2 pclk=0; 
 		#1 din=3;	#1 pclk=1; #2 pclk=0; 
 		$finish;
