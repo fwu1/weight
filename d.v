@@ -10,7 +10,7 @@ module testbench;
 	integer pix;
 	
 
-	data8out #(1,5) c1(pclk,din,inputReady,ready,dout);
+	data8out #(4,5) c1(pclk,din,inputReady,ready,dout);
 	
 	initial
 	begin
@@ -20,11 +20,11 @@ module testbench;
 		
 		
 		pclk=0;
-		din='h55667890;	
+		din='h1255667890;	
 		inputReady=1;	
 		#1 pclk=1;#1 pclk=0; 
 		inputReady=0;	
-		for (pix=0;pix<21;pix=pix+1) 
+		for (pix=0;pix<30;pix=pix+1) 
 		begin
 			#1 pclk=1;#1 pclk=0; 
 		end

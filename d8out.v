@@ -18,14 +18,15 @@ output reg [7:0] dout;
 
 reg [(8*nofBytes-9):0] outBuffer;
 reg [2:0] outSize;
-reg [3:0] outTimer;
+reg [3:0] waitCounter;
 reg inPorcess;
-
+reg dataOn;
 initial
 begin
 	outSize=0;
-	outTimer=0;
+	waitCounter=0;
 	inPorcess=0;
+	ready=0;
 end
 
 
@@ -38,19 +39,37 @@ always @(posedge pclk) begin
 			//save the remaining bytes to buffer
 			outBuffer[(8*nofBytes-9):0]<=din[(8*nofBytes-9):0];
 			outSize<=nofBytes-1;
+			ready<=1;
+			waitCounter<=outClock-1;
 		end
 	end
 	else begin
 		// in process
-		if(outSize!=0) begin
-			// output the first buffered bytes
-			dout<=outBuffer[(8*nofBytes-9):(8*nofBytes-16)];
-			// shift the remaining bytes
-			outBuffer[(8*nofBytes-9):8]<=outBuffer[(8*nofBytes-17):0];
-			outSize<=outSize-1;
+		waitCounter<=waitCounter-1;
+		if(ready) begin
+			// ready signal is high
+			if(waitCounter==0) begin
+				ready<=0;
+				waitCounter<=outClock-1;
+			end
 		end
-		else
-			inPorcess=0;
+		else begin
+			// this ready signal is low
+			if(waitCounter==0) begin
+				waitCounter<=outClock;
+				if(outSize!=0) begin
+					// output the first buffered bytes
+					dout<=outBuffer[(8*nofBytes-9):(8*nofBytes-16)];
+					// shift the remaining bytes
+					outBuffer[(8*nofBytes-9):8]<=outBuffer[(8*nofBytes-17):0];
+					outSize<=outSize-1;
+					ready<=1;
+					waitCounter<=outClock-1;
+				end
+				else 
+					inPorcess=0;
+			end
+		end
 	end
 		
 end
