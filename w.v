@@ -2,7 +2,6 @@
 //Test bench connects the flip-flop to the tester module
 module testbench;
 	reg pclk; 
-	reg vsync;
     reg href;
     reg [7:0] din;
 	wire ready;
@@ -11,7 +10,7 @@ module testbench;
 	integer pix;
 	integer lineIdx;
 	
-	wcoder c1(pclk,hsync,href,din,ready,dout);
+	wcoder c1(pclk,href,din,ready,dout);
 	initial
 	begin
 		//Dump results of the simulation to ff.cvd
@@ -20,22 +19,19 @@ module testbench;
 		
 		
 		pclk=0;
-		vsync=0;
 		href=0;
 		din=0;
 		dclk=0;
 		
-		vsync=1;
 		#1 pclk=1; 
 		#1 pclk=0; 
-		vsync=0;
 		
 		for (lineIdx=0;lineIdx<3;lineIdx=lineIdx+1) 
 		begin
 			href=0;
 			#1 pclk=1; #1 pclk=0; 
 			#1 href=1; #1
-			for (pix=0;pix<410;pix=pix+1) 
+			for (pix=0;pix<1010;pix=pix+1) 
 			begin
 				#1 din=pix+lineIdx+1;	
 				#1 pclk=1; 

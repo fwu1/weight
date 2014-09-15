@@ -20,7 +20,7 @@ reg [(8*nofBytes-9):0] outBuffer;
 reg [2:0] outSize;
 reg [5:0] waitCounter;
 reg inPorcess;
-reg dataOn;
+//reg dataOn;
 initial
 begin
 	outSize=0;
@@ -67,7 +67,7 @@ always @(posedge pclk) begin
 					waitCounter<=outClock-1;
 				end
 				else 
-					inPorcess=0;
+					inPorcess<=0;
 			end
 		end
 	end

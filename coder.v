@@ -1,13 +1,14 @@
 module wcoder(
 	input pclk, 
+//	input vsync,
     input href,
     input [7:0] din,
 	output ready,
 	output [7:0] dout
 );
 
-parameter colSize=8;
-parameter colBlockWide=200;
+parameter colSize=9;
+parameter colBlockWide=500;
 parameter rowSize=4;
 parameter rowBlockSize=4;
 parameter rowBlockHeight=3;
@@ -20,26 +21,24 @@ parameter outClock=1;
 reg [colSize-1:0] colIdx;	// the index of column in a block
 
 reg sumReady;	// data in buffer is ready
-reg outReady;	// mark this output is ready
+//reg outReady;	// mark this output is ready
 
 reg [(sumSize-1):0] sum;
 reg [(weightSize-1):0] weight;
 
-reg [31:0] outBuffer;
-reg [2:0] outSize;
-reg [3:0] outTimer;
-reg [7:0] header;
+//reg [31:0] outBuffer;
+//reg [2:0] outSize;
+//reg [3:0] outTimer;
+//reg [7:0] header;
 
-data8out #(18,5) c1(pclk,{weight,sum},sumReady,ready,dout);
+data8out #(46,5) c1(pclk,{weight,sum},sumReady,ready,dout);
 
 initial
 begin
-	outSize=0;
 	sumReady=false;
 	colIdx=-1;
 	sum=0;
 	weight=0;
-	header=8'h55;
 end
 
 
@@ -52,12 +51,10 @@ always @(posedge pclk) begin
 		// when href is high, 
 		// add the sum
 		sum<=sum+din;
-		weight<=weight+din*colIdx;
+		weight<=weight+din[5:0]*colIdx;
 		if(colIdx==(colBlockWide-1)) begin
 			// reach the width, mark the sum ready for output
 			sumReady<=true;
-			// reset the output clock timer
-			outTimer<=0;
 			// reset column index
 			colIdx<=0;
 		end
